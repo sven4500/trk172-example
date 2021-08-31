@@ -32,7 +32,7 @@ extern "C"
 {
 #endif
 
-int trk172_state(uint8_t* buf, int max_size, int trk_no);
+int trk172_state(void* buf, int max_size, int trk_no);
 
 #ifdef __cplusplus
 }

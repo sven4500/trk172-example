@@ -45,7 +45,7 @@ int to_string(char* buf, int max_len, int n)
 	}
 }
 
-int trk172_state(uint8_t* buf, int max_size, int trk_no)
+int trk172_state(void* buf, int max_size, int trk_no)
 {
 	if (max_size < TRK172_MSG_LEN)
 	{
@@ -65,7 +65,7 @@ int trk172_state(uint8_t* buf, int max_size, int trk_no)
 	msg->stx = 2;
 	msg->etx = 3;
 	msg->command[0] = TRK172_COM_STATE;
-	msg->crc = calc_xor(buf + 1, TRK172_MSG_LEN - 2);
+	msg->crc = calc_xor((uint8_t*)msg + 1, TRK172_MSG_LEN - 2);
 
 	return EOK;
 }
