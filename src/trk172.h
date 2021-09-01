@@ -35,8 +35,12 @@ extern "C"
 {
 #endif
 
+int trk172(void* buf, int max_size, int command, int trk_no, int price, int volume);
 int trk172_state(void* buf, int max_size, int trk_no);
-int trk172_load(void* buf, int max_size, int trk_no, int volume);
+int trk172_load(void* buf, int max_size, int trk_no, int price, int volume);
+int trk172_start(void* buf, int max_size, int trk_no);
+int trk172_stop(void* buf, int max_size, int trk_no);
+int trk172_reset(void* buf, int max_size, int trk_no);
 
 #ifdef __cplusplus
 }
