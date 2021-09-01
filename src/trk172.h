@@ -4,13 +4,16 @@
 
 #include <stdint.h> // uint8_t
 
-#define TRK172_MSG_LEN sizeof(TRK172_MSG)
+#define TRK172_NO_MAX		0x7F
 
-#define TRK172_COM_STATE ('\x34')
-#define TRK172_COM_LOAD ('\x31')
-#define TRK172_COM_START ('\x35')
-#define TRK172_COM_STOP ('\x36')
-#define TRK172_COM_RESET ('\x37')
+#define TRK172_PRICE_MAX	999999
+#define TRK172_VOLUME_MAX	999999
+
+#define TRK172_COM_LOAD		1
+#define TRK172_COM_STATE	4
+#define TRK172_COM_START	5
+#define TRK172_COM_STOP		6
+#define TRK172_COM_RESET	7
 
 typedef struct
 {
@@ -33,6 +36,7 @@ extern "C"
 #endif
 
 int trk172_state(void* buf, int max_size, int trk_no);
+int trk172_load(void* buf, int max_size, int trk_no, int volume);
 
 #ifdef __cplusplus
 }

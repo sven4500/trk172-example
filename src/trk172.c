@@ -20,52 +20,80 @@ uint8_t calc_xor(void const* buf, int const size)
 	return sum;
 }
 
-int to_string(char* buf, int max_len, int n)
+int to_string(char* buf, int max_len, int n, int base)
 {
-	if (n < 0)
-	{
-		return EINVAL;
-	}
+	char const digits[] = "0123456789ABCDEF";
 
-	if (max_len == 1)
-	{
-		buf[0] = '0' + n % 10;
-		return EOK;
-	}
-	else
-	if (max_len == 2)
-	{
-		buf[0] = '0' + n / 10;
-		buf[1] = '0' + n % 10;
-		return EOK;
-	}
-	else
-	{
-		return EINVAL;
-	}
-}
-
-int trk172_state(void* buf, int max_size, int trk_no)
-{
-	if (max_size < TRK172_MSG_LEN)
+	if (buf == 0 || max_len < 1)
 	{
 		return ENOMEM;
 	}
 
-	if (trk_no > 0x7F)
+	if (n < 0 || base > 16 || base < 1)
+	{
+		return EINVAL;
+	}
+
+	for (int i = 0; i < max_len; ++i)
+	{
+		buf[max_len - i - 1] = digits[n % base];
+		n /= base;
+	}
+
+	return EOK;
+}
+
+int trk172_state(void* buf, int max_size, int trk_no)
+{
+	if (buf == 0 || max_size < sizeof(TRK172_MSG))
+	{
+		return ENOMEM;
+	}
+
+	if (trk_no > TRK172_NO_MAX)
 	{
 		return EINVAL;
 	}
 
 	TRK172_MSG* const msg = (TRK172_MSG*)buf;
-	memset(buf, 0, TRK172_MSG_LEN);
+	memset(buf, 0, sizeof(TRK172_MSG));
 
-	to_string(msg->trk_no, sizeof(msg->trk_no), trk_no);
+	to_string(msg->command, sizeof(msg->command), TRK172_COM_STATE, 16);
+	to_string(msg->trk_no, sizeof(msg->trk_no), trk_no, 16);
+
 	msg->soh = 1;
 	msg->stx = 2;
 	msg->etx = 3;
-	msg->command[0] = TRK172_COM_STATE;
-	msg->crc = calc_xor((uint8_t*)msg + 1, TRK172_MSG_LEN - 2);
+	
+	msg->crc = calc_xor((uint8_t*)msg + 1, sizeof(TRK172_MSG) - 2);
+
+	return EOK;
+}
+
+int trk172_load(void* buf, int max_size, int trk_no, int volume)
+{
+	if (buf == 0 || max_size < sizeof(TRK172_MSG))
+	{
+		return ENOMEM;
+	}
+
+	if (trk_no > TRK172_NO_MAX || volume > TRK172_VOLUME_MAX)
+	{
+		return EINVAL;
+	}
+
+	TRK172_MSG* const msg = (TRK172_MSG*)buf;
+	memset(buf, 0, sizeof(TRK172_MSG));
+
+	to_string(msg->command, sizeof(msg->command), TRK172_COM_LOAD, 16);
+	to_string(msg->trk_no, sizeof(msg->trk_no), trk_no, 16);
+	to_string(msg->volume, sizeof(msg->volume), volume, 10);
+
+	msg->soh = 1;
+	msg->stx = 2;
+	msg->etx = 3;
+
+	msg->crc = calc_xor((uint8_t*)msg + 1, sizeof(TRK172_MSG) - 2);
 
 	return EOK;
 }
